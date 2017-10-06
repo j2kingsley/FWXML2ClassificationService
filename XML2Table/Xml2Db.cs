@@ -373,7 +373,7 @@ namespace XML2Table
                                 Console.WriteLine(eachClassification.Element("Value").Value);
                                 log.Info("		Parent Value: " + eachClassification.Element("Value").Value);
                             }
-                            
+                            prtShortDescription = eachClassification.Element("Value").Value;
                             prtCategory = CreateCategory(eachClassification.Element("Value").Value);
                         }
 
@@ -391,11 +391,20 @@ namespace XML2Table
                             prtDescription = eachClassification.Element("Description").Value;
                         }
 
+                        prtParentCategory = grpCategory;
+                        prtParentCode = grpCode;
+
+                        totalRowCounter = totalRowCounter + 1;
+                        var insertParentQuery = "INSERT INTO classification.classification (category, code, description, short_description, active, parent_category, parent_code) VALUES (" +
+                                                  "'" + prtCategory + "', '" + prtCode + "', '" + EscapeSingleQuote(prtDescription) + "', '"+ prtShortDescription +"', " + true + ", '" + prtParentCategory + "', '" + prtParentCode + "');";
+                        log.Info("		" + insertParentQuery);
+
+
+                        //Parents(TA) Attributes
                         IEnumerable<XElement> attributesChildList = from eA in eachClassification.Elements("Attribute")
                             select eA;
 
                         var ptrAttributesCounter = 0;
-                        //Parents(TA) Attributes
                         foreach (XElement parentAttrValue in attributesChildList)
                         {
                             if (includeLogs)
@@ -423,15 +432,7 @@ namespace XML2Table
                             log.Info("		" + insertptrAttributesQuery);
 
                         }
-
-                        prtParentCategory = grpCategory;
-                        prtParentCode = grpCode;
-
-                        totalRowCounter = totalRowCounter + 1;
-                        var insertParentQuery = "INSERT INTO classification.classification (category, code, description, short_description, active, parent_category, parent_code) VALUES (" +
-                                                  "'" + prtCategory + "', '" + prtCode + "', '" + EscapeSingleQuote(prtDescription) + "', null, " + true + ", '"+ prtParentCategory + "', '"+ prtParentCode + "');";
-                        log.Info("		" + insertParentQuery);
-
+                        
 
                         //3. Get Children List [Gettting ZONE Lists]
                         IEnumerable<XElement> elementsChildList = from eA in eachClassification.Elements("List_Item")
@@ -446,7 +447,8 @@ namespace XML2Table
                             string childDescription = null;
                             string childParentCategory = null;
                             string childParentCode = null;
-                            
+                            string childShortDescription = null;
+
                             if (GetXElement(eleValue.Element("Backend_ID")) != null)
                             {
                                 //Get TA Code
@@ -478,6 +480,8 @@ namespace XML2Table
                                     log.Info("		Value: " + eleValue.Element("Value").Value);
                                 }
 
+                                childShortDescription = eleValue.Element("Value").Value;
+
                                 childCategory = CreateCategory(eleValue.Element("Value").Value);
                                 //Found some duplicate values in Child Category list
                                 childCategory = childCategory + prtCode;
@@ -502,7 +506,7 @@ namespace XML2Table
 
                             totalRowCounter = totalRowCounter + 1;
                             var insertChildQuery = "INSERT INTO classification.classification (category, code, description, short_description, active, parent_category, parent_code) VALUES (" +
-                                                      "'" + childCategory + "', '" + childCode + "', '" + EscapeSingleQuote(childDescription) + "', null, " + true + ", '" + childParentCategory + "', '" + childParentCode + "');";
+                                                      "'" + childCategory + "', '" + childCode + "', '" + EscapeSingleQuote(childDescription) + "', '"+ childShortDescription +"', " + true + ", '" + childParentCategory + "', '" + childParentCode + "');";
                             log.Info("		" + insertChildQuery);
 
                             //Children(ZONES) Attributes
