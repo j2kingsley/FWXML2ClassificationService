@@ -34,6 +34,13 @@ namespace XML2Table
         private static bool includeLogs = false;
         private string xmlFilePath = null;
         private static dynamic queryCsv = null;
+
+        private static List<string> taCategoryRegistry = null;
+        private static List<string> zoneCategoryRegistry = null;
+
+        private static long taSequence = 10001;
+        private static long zoneSequence = 20001;
+
         
         public Xml2Db()
         {
@@ -271,6 +278,9 @@ namespace XML2Table
         {
             try
             {
+                taCategoryRegistry = new List<string>();
+                zoneCategoryRegistry = new List<string>();
+
                 XElement xelement = XElement.Load(xmlFilePath);
                 IEnumerable<XElement> classfications = xelement.Descendants("List_Item");
 
@@ -377,6 +387,18 @@ namespace XML2Table
                             }
                             prtShortDescription = eachClassification.Element("Value").Value;
                             prtCategory = CreateCategory(eachClassification.Element("Value").Value);
+                            
+                            if (taCategoryRegistry.Contains(prtCategory))
+                            {//Then it is dupicate
+                                taSequence = taSequence + 1;
+                                prtCategory = prtCategory + taSequence;
+                            }
+                            else
+                            {
+                                taCategoryRegistry.Add(prtCategory);
+                            }
+
+                            
                         }
 
                         //Status:
@@ -486,7 +508,18 @@ namespace XML2Table
 
                                 childCategory = CreateCategory(eleValue.Element("Value").Value);
                                 //Found some duplicate values in Child Category list
-                                childCategory = childCategory + prtCode;
+                                //childCategory = childCategory + prtCode;
+
+                                if (zoneCategoryRegistry.Contains(childCategory))
+                                {//Then it is duplicate zone
+                                    zoneSequence = zoneSequence + 1;
+                                    childCategory = childCategory + zoneSequence;
+                                }
+                                else
+                                {
+                                    zoneCategoryRegistry.Add(childCategory);
+                                }
+
 
                             }
 
