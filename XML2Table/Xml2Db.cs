@@ -283,9 +283,9 @@ namespace XML2Table
 
                 foreach (var eachClassification in classfications)
                 {
-                    //INSERT INTO classification.classification (category, code, description, short_description, active, parent_category, parent_code) 
+                    //INSERT INTO classification.classification (category, code, description, short_description, active, parent_category, parent_code, group_category, group_code) 
                     //VALUES ('TAZoning63', 'APZ', 'Aquatic Park Zone', null, true, 'TAZoning', '63');
-                    
+
                     //1. Get Category Name [Getting Group name and details]
                     if (listCounter == 0)
                     {
@@ -325,8 +325,8 @@ namespace XML2Table
                             }
 
                             totalRowCounter = totalRowCounter + 1;
-                            string insertGrpQuery = "INSERT INTO classification.classification (category, code, description, short_description, active, parent_category, parent_code) VALUES (" +
-                                                  "'"+ grpCategory + "', '" + grpCode + "', '" + EscapeSingleQuote(grpDescription) + "', null, " + true + ", null, null);";
+                            string insertGrpQuery = "INSERT INTO classification.classification (category, code, description, short_description, active, parent_category, parent_code, group_category, group_code) VALUES (" +
+                                                  "'"+ grpCategory + "', '" + grpCode + "', '" + EscapeSingleQuote(grpDescription) + "', null, " + true + ", null, null, '" + grpCategory + "', '" + grpCode +"');";
                             log.Info("		" + insertGrpQuery);
                         }
                     }
@@ -397,8 +397,8 @@ namespace XML2Table
                         prtParentCode = grpCode;
 
                         totalRowCounter = totalRowCounter + 1;
-                        var insertParentQuery = "INSERT INTO classification.classification (category, code, description, short_description, active, parent_category, parent_code) VALUES (" +
-                                                  "'" + prtCategory + "', '" + prtCode + "', '" + EscapeSingleQuote(prtDescription) + "', '"+ EscapeSingleQuote(prtShortDescription) + "', " + true + ", '" + prtParentCategory + "', '" + prtParentCode + "');";
+                        var insertParentQuery = "INSERT INTO classification.classification (category, code, description, short_description, active, parent_category, parent_code, group_category, group_code) VALUES (" +
+                                                  "'" + prtCategory + "', '" + prtCode + "', '" + EscapeSingleQuote(prtDescription) + "', '"+ EscapeSingleQuote(prtShortDescription) + "', " + true + ", '" + prtParentCategory + "', '" + prtParentCode + "', '" + grpCategory + "', '" + grpCode + "');";
                         log.Info("		" + insertParentQuery);
 
 
@@ -429,8 +429,8 @@ namespace XML2Table
                             ptrAttributeParentCode = prtCode;
 
                             totalRowCounter = totalRowCounter + 1;
-                            var insertptrAttributesQuery = "INSERT INTO classification.classification (category, code, description, short_description, active, parent_category, parent_code) VALUES (" +
-                                                  "'" + ptrAttributeCategory + "', '" + ptrAttributeCode + "', '" + EscapeSingleQuote(ptrAttributeDescription) + "', null, " + true + ", '" + ptrAttributeParentCategory + "', '" + ptrAttributeParentCode + "');";
+                            var insertptrAttributesQuery = "INSERT INTO classification.classification (category, code, description, short_description, active, parent_category, parent_code, group_category, group_code) VALUES (" +
+                                                  "'" + ptrAttributeCategory + "', '" + ptrAttributeCode + "', '" + EscapeSingleQuote(ptrAttributeDescription) + "', null, " + true + ", '" + ptrAttributeParentCategory + "', '" + ptrAttributeParentCode + "', '" + grpCategory + "', '" + grpCode + "');";
                             log.Info("		" + insertptrAttributesQuery);
 
                         }
@@ -507,8 +507,8 @@ namespace XML2Table
                             childParentCode = prtCode;
 
                             totalRowCounter = totalRowCounter + 1;
-                            var insertChildQuery = "INSERT INTO classification.classification (category, code, description, short_description, active, parent_category, parent_code) VALUES (" +
-                                                      "'" + childCategory + "', '" + childCode + "', '" + EscapeSingleQuote(childDescription) + "', '"+ EscapeSingleQuote(childShortDescription) + "', " + true + ", '" + childParentCategory + "', '" + childParentCode + "');";
+                            var insertChildQuery = "INSERT INTO classification.classification (category, code, description, short_description, active, parent_category, parent_code, group_category, group_code) VALUES (" +
+                                                      "'" + childCategory + "', '" + childCode + "', '" + EscapeSingleQuote(childDescription) + "', '"+ EscapeSingleQuote(childShortDescription) + "', " + true + ", '" + childParentCategory + "', '" + childParentCode + "', '" + grpCategory + "', '" + grpCode + "');";
                             log.Info("		" + insertChildQuery);
 
                             //Children(ZONES) Attributes
@@ -538,8 +538,8 @@ namespace XML2Table
                                 attributeParentCode = childCode;
 
                                 totalRowCounter = totalRowCounter + 1;
-                                var insertAttributesQuery = "INSERT INTO classification.classification (category, code, description, short_description, active, parent_category, parent_code) VALUES (" +
-                                                      "'" + attributeCategory + "', '" + attributeCode + "', '" + EscapeSingleQuote(attributeDescription) + "', null, " + true + ", '" + attributeParentCategory + "', '" + attributeParentCode + "');";
+                                var insertAttributesQuery = "INSERT INTO classification.classification (category, code, description, short_description, active, parent_category, parent_code, group_category, group_code) VALUES (" +
+                                                      "'" + attributeCategory + "', '" + attributeCode + "', '" + EscapeSingleQuote(attributeDescription) + "', null, " + true + ", '" + attributeParentCategory + "', '" + attributeParentCode + "', '" + grpCategory + "', '" + grpCode + "');";
                                 log.Info("		" + insertAttributesQuery);
 
                             }
@@ -598,7 +598,7 @@ namespace XML2Table
                     {
                         cmd.Connection = conn;
                         cmd.CommandText =
-                            "INSERT INTO classification.classification (category, code, description, short_description, active, parent_category, parent_code) VALUES (@category, @code, @description, @short_description, @active, @parent_category, @parent_code)";
+                            "INSERT INTO classification.classification (category, code, description, short_description, active, parent_category, parent_code, group_category, group_code) VALUES (@category, @code, @description, @short_description, @active, @parent_category, @parent_code)";
                         cmd.Parameters.AddWithValue("@category", "HelloWorld");
                         cmd.Parameters.AddWithValue("@code", "Hello world");
                         cmd.Parameters.AddWithValue("@description", "Hello world");
@@ -635,8 +635,8 @@ namespace XML2Table
         private void button1_Click_1(object sender, EventArgs e)
         {
             //Console.WriteLine(CreateCategory("Minimum Site 280m² with a %building() commitment and 500m² without."));
-            //GenerateRandomNo();
-            Addmedia();
+            GenerateRandomNo();
+            //Addmedia();
 
         }
         public static int GenerateRandomNo()
