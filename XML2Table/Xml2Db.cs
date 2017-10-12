@@ -451,8 +451,8 @@ namespace XML2Table
 
                         
 
-                            //ptrAttributeCategory = "Attributes" + prtCode;
-                            ptrAttributeCategory = "Attributes";
+                            ptrAttributeCategory = "Attributes" + prtCategory;
+                            //ptrAttributeCategory = "Attributes";
                             if (taAttributeRegistry.Contains(ptrAttributeCategory))
                             {//Then it is dupicate
                                 taAttributeSequence = taAttributeSequence + 1;
@@ -582,8 +582,8 @@ namespace XML2Table
                                 }
 
                                 
-                                //attributeCategory = "Attributes"  + childCode;
-                                attributeCategory = "Attributes";
+                                attributeCategory = "Attributes"  + childCategory;
+                                //attributeCategory = "Attributes";
                                 if (zoneAttributeRegistry.Contains(attributeCategory))
                                 {//Then it is dupicate
                                     zoneAttributeSequence = zoneAttributeSequence + 1;
