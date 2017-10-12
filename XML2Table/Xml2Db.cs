@@ -36,12 +36,16 @@ namespace XML2Table
         private static dynamic queryCsv = null;
 
         private static List<string> taCategoryRegistry = null;
+        private static List<string> taAttributeRegistry = null;
         private static List<string> zoneCategoryRegistry = null;
+        private static List<string> zoneAttributeRegistry = null;
 
         private static long taSequence = 10001;
         private static long zoneSequence = 20001;
 
-        
+        private static long taAttributeSequence = 30001;
+        private static long zoneAttributeSequence = 40001;
+
         public Xml2Db()
         {
             InitializeComponent();
@@ -281,6 +285,9 @@ namespace XML2Table
                 taCategoryRegistry = new List<string>();
                 zoneCategoryRegistry = new List<string>();
 
+                taAttributeRegistry = new List<string>();
+                zoneAttributeRegistry = new List<string>();
+
                 XElement xelement = XElement.Load(xmlFilePath);
                 IEnumerable<XElement> classfications = xelement.Descendants("List_Item");
 
@@ -428,7 +435,7 @@ namespace XML2Table
                         IEnumerable<XElement> attributesChildList = from eA in eachClassification.Elements("Attribute")
                             select eA;
 
-                        var ptrAttributesCounter = 0;
+                       
                         foreach (XElement parentAttrValue in attributesChildList)
                         {
                             if (includeLogs)
@@ -442,10 +449,21 @@ namespace XML2Table
                             string ptrAttributeParentCategory = null;
                             string ptrAttributeParentCode = null;
 
-                            ptrAttributesCounter = ptrAttributesCounter + 1;
+                        
 
-                            ptrAttributeCategory = "Attributes" + prtCode;
-                            ptrAttributeCode = ptrAttributesCounter.ToString();
+                            //ptrAttributeCategory = "Attributes" + prtCode;
+                            ptrAttributeCategory = "Attributes";
+                            if (taAttributeRegistry.Contains(ptrAttributeCategory))
+                            {//Then it is dupicate
+                                taAttributeSequence = taAttributeSequence + 1;
+                                ptrAttributeCategory = ptrAttributeCategory + taAttributeSequence;
+                            }
+                            else
+                            {
+                                taAttributeRegistry.Add(ptrAttributeCategory);
+                            }
+
+                            ptrAttributeCode = taAttributeSequence.ToString();
                             ptrAttributeDescription = parentAttrValue.Value;
                             ptrAttributeParentCategory = prtCategory;
                             ptrAttributeParentCode = prtCode;
@@ -547,7 +565,7 @@ namespace XML2Table
                             //Children(ZONES) Attributes
                             IEnumerable<XElement> attributeChildList = from eA in eleValue.Elements("Attribute")
                                 select eA;
-                            int attributesCounter = 0;
+                           
                             foreach (XElement attrValue in attributeChildList)
                             {
                                 string attributeCategory = null;
@@ -556,7 +574,7 @@ namespace XML2Table
                                 string attributeParentCategory = null;
                                 string attributeParentCode = null;
                             
-                                attributesCounter = attributesCounter + 1;
+                               
                                 if (includeLogs)
                                 {
                                     Console.WriteLine(attrValue.Value);
@@ -564,8 +582,19 @@ namespace XML2Table
                                 }
 
                                 
-                                attributeCategory = "Attributes"  + childCode + attributesCounter.ToString();
-                                attributeCode = attributesCounter.ToString();
+                                //attributeCategory = "Attributes"  + childCode;
+                                attributeCategory = "Attributes";
+                                if (zoneAttributeRegistry.Contains(attributeCategory))
+                                {//Then it is dupicate
+                                    zoneAttributeSequence = zoneAttributeSequence + 1;
+                                    attributeCategory = attributeCategory + zoneAttributeSequence;
+                                }
+                                else
+                                {
+                                    zoneAttributeRegistry.Add(attributeCategory);
+                                }
+
+                                attributeCode = zoneAttributeSequence.ToString();
                                 attributeDescription = attrValue.Value;
                                 attributeParentCategory = childCategory;
                                 attributeParentCode = childCode;
