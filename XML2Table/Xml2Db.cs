@@ -10,6 +10,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Management.Instrumentation;
+using System.Net.Http;
 using System.Reflection;
 using System.Security.Permissions;
 using System.Text;
@@ -20,6 +21,7 @@ using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Schema;
 using System.Xml.XPath;
+using Newtonsoft.Json;
 using Npgsql;
 
 namespace XML2Table
@@ -633,7 +635,8 @@ namespace XML2Table
         private void button1_Click_1(object sender, EventArgs e)
         {
             //Console.WriteLine(CreateCategory("Minimum Site 280m² with a %building() commitment and 500m² without."));
-            GenerateRandomNo();
+            //GenerateRandomNo();
+            Addmedia();
 
         }
         public static int GenerateRandomNo()
@@ -651,6 +654,102 @@ namespace XML2Table
 
             
             return 0;
+        }
+        public static async void Addmedia()
+        {
+            try
+            {
+                Debug.WriteLine("Addmedia");
+
+                using (var client = new HttpClient())
+                {
+                    var mediaItem = new MediaItem
+                    {
+                        id = "1249d6ce-ad65-11e7-abc4-cec278b6b50a",
+                        fileName = "FromScript.jpg",
+                        contentType = "image/jpeg",
+                        status = "UPLOAD_INITIATED",
+                        captureDate = "2014-01-02",
+                        uploadedDate = "2016-01-02",
+                        isIncludedInInsurance = false,
+                        isIncludedInInsuranceReports = false
+                    };
+
+                    var mediaEntry = new MediaEntry
+                    {
+                        id = "1249d974-ad65-11e7-abc4-cec278b6b50a",
+                        ownerId = "36e20bdd-64a4-4501-9a46-8302cd807104",
+                        isPrimary = false,
+                        qivsPhotoId = "123_1",
+                        mediaItem = mediaItem
+                    };
+
+                    var json = JsonConvert.SerializeObject(mediaEntry);
+                    var mediaContent = new System.Net.Http.StringContent(json, System.Text.Encoding.UTF8);
+                    mediaContent.Headers.ContentType =
+                        new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+
+                    var response = await client.PostAsync("http://localhost:9000/media/add", mediaContent);
+
+                    var responseString = await response.Content.ReadAsStringAsync();
+                    Debug.WriteLine("Addmedia Response Status Code: " + response.StatusCode);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        if (response.StatusCode.ToString() == "OK")
+                        {
+
+                            Debug.WriteLine("Media Successfully Added, MediaEntryId: " + mediaEntry.id);
+                        }
+                        else
+                        {
+                            Debug.WriteLine("Media Failed to add, MediaEntryId: " + mediaEntry.id);
+                            Debug.WriteLine("Message String : " + response.ToString());
+                        }
+                    }
+                    else
+                    {
+                        Debug.WriteLine("Media Failed to add, MediaEntryId: " + mediaEntry.id);
+                        Debug.WriteLine("Error String : " + response.ToString());
+                    }
+
+                    //string returnResponse = null;
+                    //using (HttpContent content = response.Content)
+                    //{
+                    //    // ... Read the string.
+                    //    Task<string> result = content.ReadAsStringAsync();
+                    //    returnResponse = result.Result;
+                    //    Debug.WriteLine("Addmedia: " + returnResponse);
+                    //}
+
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(MethodBase.GetCurrentMethod().Name + " Exception : " + ex.Message);
+                log.Debug(MethodBase.GetCurrentMethod().Name + " Exception : " + ex.Message);
+            }
+        }
+        public class MediaEntry
+        {
+            public string id { get; set; }
+            public string ownerId { get; set; }
+            public bool isPrimary { get; set; }
+            public string qivsPhotoId { get; set; }
+            public MediaItem mediaItem { get; set; }
+
+        }
+        public class MediaItem
+        {
+            public string id { get; set; }
+            public string fileName { get; set; }
+            public string contentType { get; set; }
+            public string status { get; set; }
+            public string captureDate { get; set; }
+            public string uploadedDate { get; set; }
+            public bool isIncludedInInsurance { get; set; }
+            public bool isIncludedInInsuranceReports { get; set; }
         }
     }
 }
