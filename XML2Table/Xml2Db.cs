@@ -633,6 +633,16 @@ namespace XML2Table
             {
                 queryCsv = null;
                 includeLogs = false;
+
+                taCategoryRegistry = null;
+                zoneCategoryRegistry = null;
+                taAttributeRegistry = null;
+                zoneAttributeRegistry = null;
+                
+                taSequence = 10001;
+                zoneSequence = 20001;
+                taAttributeSequence = 30001;
+                zoneAttributeSequence = 40001;
             }
         }
 
