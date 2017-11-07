@@ -139,17 +139,18 @@ namespace XML2Table
                 return taCode;
             }
         }
+
         private static string EscapeSingleQuote(string escapeQuote)
         {
             string returnValue = null;
             try
             {
-               
+
                 if (escapeQuote != null)
                 {
                     returnValue = escapeQuote.Replace("'", "''");
                 }
-               
+
 
                 return returnValue;
             }
@@ -160,6 +161,7 @@ namespace XML2Table
                 return returnValue;
             }
         }
+
         private static XElement GetXElement(XElement ele)
         {
             if (ele == null)
@@ -198,16 +200,16 @@ namespace XML2Table
                             }
 
                             categoryName = categoryName + lclWord;
-                           
+
                         }
                         if (categoryName != null)
                         {
                             categoryName = Regex.Replace(categoryName, @"[^0-9a-zA-Z]+", "");
 
                         }
-                           
+
                     }
-                    
+
 
                     //categoryName = Regex.Replace(inputValue, @"[^0-9a-zA-Z]+", "");
 
@@ -223,6 +225,7 @@ namespace XML2Table
                 return categoryName;
             }
         }
+
         private static string CreateCode(string inputValue)
         {
             //if (inputValue == "7-Residential 6A.  Auckland City - Isthmus Section 199910")
@@ -247,7 +250,7 @@ namespace XML2Table
                         foreach (var eachWord in inputValue.Split(' '))
                         {
                             counter = counter + 1;
-                           
+
                             var lclWord = eachWord.FirstOrDefault().ToString().ToUpper();
 
                             //Too avoid duplicates concatenating last char
@@ -257,16 +260,16 @@ namespace XML2Table
                             }
 
                             codeName = codeName + lclWord;
-                            
+
                         }
                         if (codeName != null)
                         {
                             codeName = Regex.Replace(codeName, @"[^0-9a-zA-Z]+", "");
 
                         }
-                        
+
                     }
-                    
+
                 }
 
                 return codeName;
@@ -278,6 +281,7 @@ namespace XML2Table
                 return codeName;
             }
         }
+
         private static void processXml(string xmlFilePath, Label lblStatus)
         {
             try
@@ -311,7 +315,7 @@ namespace XML2Table
                             grpCategory = eachClassification.Parent.FirstAttribute.Value.Replace(" ", "");
 
                             log.Info("-- Create " + eachClassification.Parent.FirstAttribute.Value + " classification");
-                            
+
                             if (includeLogs)
                             {
                                 Console.WriteLine("Group Name: " + eachClassification.Parent.FirstAttribute.Value);
@@ -319,7 +323,7 @@ namespace XML2Table
 
                                 Console.WriteLine("Group Name: " + eachClassification.Parent.LastAttribute.Value);
                             }
-                         
+
                             foreach (var eachGroupAttrbs in eachClassification.Parent.Attributes())
                             {
                                 if (eachGroupAttrbs.Name.LocalName == "name")
@@ -337,13 +341,15 @@ namespace XML2Table
                                 {
                                     grpDescription = eachGroupAttrbs.Value;
                                 }
-                                
-                               
+
+
                             }
 
                             totalRowCounter = totalRowCounter + 1;
-                            string insertGrpQuery = "INSERT INTO classification.classification (category, code, description, short_description, active, parent_category, parent_code, group_category, group_code) VALUES (" +
-                                                  "'"+ grpCategory + "', '" + grpCode + "', '" + EscapeSingleQuote(grpDescription) + "', null, " + true + ", null, null, '" + grpCategory + "', '" + grpCode +"');";
+                            string insertGrpQuery =
+                                "INSERT INTO classification.classification (category, code, description, short_description, active, parent_category, parent_code, group_category, group_code) VALUES (" +
+                                "'" + grpCategory + "', '" + grpCode + "', '" + EscapeSingleQuote(grpDescription) +
+                                "', null, " + true + ", null, null, '" + grpCategory + "', '" + grpCode + "');";
                             log.Info("		" + insertGrpQuery);
                         }
                     }
@@ -359,7 +365,7 @@ namespace XML2Table
                         string prtShortDescription = null;
 
                         listCounter = listCounter + 1;
-                      
+
                         if (includeLogs)
                         {
                             log.Info("                                                                              ");
@@ -377,14 +383,15 @@ namespace XML2Table
                             if (includeLogs)
                             {
                                 Console.WriteLine(eachClassification.Element("Backend_ID").Value);
-                                log.Info("		Parent Backend_ID: " + eachClassification.Element("Backend_ID").Value + "		TA Code: " + taCode.ToString());
+                                log.Info("		Parent Backend_ID: " + eachClassification.Element("Backend_ID").Value +
+                                         "		TA Code: " + taCode.ToString());
                             }
 
                             prtCode = taCode == 0 ? eachClassification.Element("Backend_ID").Value : taCode.ToString();
                             prtCode = Regex.Replace(prtCode, @"[^0-9a-zA-Z]+", "");
 
                         }
-                       
+
                         if (GetXElement(eachClassification.Element("Value")) != null)
                         {
                             if (includeLogs)
@@ -394,9 +401,10 @@ namespace XML2Table
                             }
                             prtShortDescription = eachClassification.Element("Value").Value;
                             prtCategory = CreateCategory(eachClassification.Element("Value").Value);
-                            
+
                             if (taCategoryRegistry.Contains(prtCategory))
-                            {//Then it is dupicate
+                            {
+//Then it is dupicate
                                 taSequence = taSequence + 1;
                                 prtCategory = prtCategory + taSequence;
                             }
@@ -405,7 +413,7 @@ namespace XML2Table
                                 taCategoryRegistry.Add(prtCategory);
                             }
 
-                            
+
                         }
 
                         //Status:
@@ -426,8 +434,11 @@ namespace XML2Table
                         prtParentCode = grpCode;
 
                         totalRowCounter = totalRowCounter + 1;
-                        var insertParentQuery = "INSERT INTO classification.classification (category, code, description, short_description, active, parent_category, parent_code, group_category, group_code) VALUES (" +
-                                                  "'" + prtCategory + "', '" + prtCode + "', '" + EscapeSingleQuote(prtDescription) + "', '"+ EscapeSingleQuote(prtShortDescription) + "', " + true + ", '" + prtParentCategory + "', '" + prtParentCode + "', '" + grpCategory + "', '" + grpCode + "');";
+                        var insertParentQuery =
+                            "INSERT INTO classification.classification (category, code, description, short_description, active, parent_category, parent_code, group_category, group_code) VALUES (" +
+                            "'" + prtCategory + "', '" + prtCode + "', '" + EscapeSingleQuote(prtDescription) + "', '" +
+                            EscapeSingleQuote(prtShortDescription) + "', " + true + ", '" + prtParentCategory + "', '" +
+                            prtParentCode + "', '" + grpCategory + "', '" + grpCode + "');";
                         log.Info("		" + insertParentQuery);
 
 
@@ -435,7 +446,7 @@ namespace XML2Table
                         IEnumerable<XElement> attributesChildList = from eA in eachClassification.Elements("Attribute")
                             select eA;
 
-                       
+
                         foreach (XElement parentAttrValue in attributesChildList)
                         {
                             if (includeLogs)
@@ -449,12 +460,13 @@ namespace XML2Table
                             string ptrAttributeParentCategory = null;
                             string ptrAttributeParentCode = null;
 
-                        
+
 
                             ptrAttributeCategory = "Attributes" + prtCategory;
                             //ptrAttributeCategory = "Attributes";
                             if (taAttributeRegistry.Contains(ptrAttributeCategory))
-                            {//Then it is dupicate
+                            {
+//Then it is dupicate
                                 taAttributeSequence = taAttributeSequence + 1;
                                 ptrAttributeCategory = ptrAttributeCategory + taAttributeSequence;
                             }
@@ -469,12 +481,16 @@ namespace XML2Table
                             ptrAttributeParentCode = prtCode;
 
                             totalRowCounter = totalRowCounter + 1;
-                            var insertptrAttributesQuery = "INSERT INTO classification.classification (category, code, description, short_description, active, parent_category, parent_code, group_category, group_code) VALUES (" +
-                                                  "'" + ptrAttributeCategory + "', '" + ptrAttributeCode + "', '" + EscapeSingleQuote(ptrAttributeDescription) + "', null, " + true + ", '" + ptrAttributeParentCategory + "', '" + ptrAttributeParentCode + "', '" + grpCategory + "', '" + grpCode + "');";
+                            var insertptrAttributesQuery =
+                                "INSERT INTO classification.classification (category, code, description, short_description, active, parent_category, parent_code, group_category, group_code) VALUES (" +
+                                "'" + ptrAttributeCategory + "', '" + ptrAttributeCode + "', '" +
+                                EscapeSingleQuote(ptrAttributeDescription) + "', null, " + true + ", '" +
+                                ptrAttributeParentCategory + "', '" + ptrAttributeParentCode + "', '" + grpCategory +
+                                "', '" + grpCode + "');";
                             log.Info("		" + insertptrAttributesQuery);
 
                         }
-                        
+
 
                         //3. Get Children List [Gettting ZONE Lists]
                         IEnumerable<XElement> elementsChildList = from eA in eachClassification.Elements("List_Item")
@@ -483,7 +499,7 @@ namespace XML2Table
                         foreach (XElement eleValue in elementsChildList)
                         {
                             zoneBackendIdcounter = zoneBackendIdcounter + 1;
-                      
+
                             string childCategory = null;
                             string childCode = null;
                             string childDescription = null;
@@ -498,7 +514,8 @@ namespace XML2Table
                                 if (includeLogs)
                                 {
                                     Console.WriteLine(eleValue.Element("Backend_ID").Value);
-                                    log.Info("		Backend_ID: " + eleValue.Element("Backend_ID").Value + "		TA Code: " + taCode.ToString());
+                                    log.Info("		Backend_ID: " + eleValue.Element("Backend_ID").Value + "		TA Code: " +
+                                             taCode.ToString());
 
                                 }
                                 childCode = taCode == 0 ? eleValue.Element("Backend_ID").Value : taCode.ToString();
@@ -529,7 +546,8 @@ namespace XML2Table
                                 //childCategory = childCategory + prtCode;
 
                                 if (zoneCategoryRegistry.Contains(childCategory))
-                                {//Then it is duplicate zone
+                                {
+//Then it is duplicate zone
                                     zoneSequence = zoneSequence + 1;
                                     childCategory = childCategory + zoneSequence;
                                 }
@@ -558,14 +576,18 @@ namespace XML2Table
                             childParentCode = prtCode;
 
                             totalRowCounter = totalRowCounter + 1;
-                            var insertChildQuery = "INSERT INTO classification.classification (category, code, description, short_description, active, parent_category, parent_code, group_category, group_code) VALUES (" +
-                                                      "'" + childCategory + "', '" + childCode + "', '" + EscapeSingleQuote(childDescription) + "', '"+ EscapeSingleQuote(childShortDescription) + "', " + true + ", '" + childParentCategory + "', '" + childParentCode + "', '" + grpCategory + "', '" + grpCode + "');";
+                            var insertChildQuery =
+                                "INSERT INTO classification.classification (category, code, description, short_description, active, parent_category, parent_code, group_category, group_code) VALUES (" +
+                                "'" + childCategory + "', '" + childCode + "', '" + EscapeSingleQuote(childDescription) +
+                                "', '" + EscapeSingleQuote(childShortDescription) + "', " + true + ", '" +
+                                childParentCategory + "', '" + childParentCode + "', '" + grpCategory + "', '" + grpCode +
+                                "');";
                             log.Info("		" + insertChildQuery);
 
                             //Children(ZONES) Attributes
                             IEnumerable<XElement> attributeChildList = from eA in eleValue.Elements("Attribute")
                                 select eA;
-                           
+
                             foreach (XElement attrValue in attributeChildList)
                             {
                                 string attributeCategory = null;
@@ -573,19 +595,20 @@ namespace XML2Table
                                 string attributeDescription = null;
                                 string attributeParentCategory = null;
                                 string attributeParentCode = null;
-                            
-                               
+
+
                                 if (includeLogs)
                                 {
                                     Console.WriteLine(attrValue.Value);
                                     log.Info("		Attribute: " + attrValue.Value);
                                 }
 
-                                
-                                attributeCategory = "Attributes"  + childCategory;
+
+                                attributeCategory = "Attributes" + childCategory;
                                 //attributeCategory = "Attributes";
                                 if (zoneAttributeRegistry.Contains(attributeCategory))
-                                {//Then it is dupicate
+                                {
+//Then it is dupicate
                                     zoneAttributeSequence = zoneAttributeSequence + 1;
                                     attributeCategory = attributeCategory + zoneAttributeSequence;
                                 }
@@ -600,16 +623,22 @@ namespace XML2Table
                                 attributeParentCode = childCode;
 
                                 totalRowCounter = totalRowCounter + 1;
-                                var insertAttributesQuery = "INSERT INTO classification.classification (category, code, description, short_description, active, parent_category, parent_code, group_category, group_code) VALUES (" +
-                                                      "'" + attributeCategory + "', '" + attributeCode + "', '" + EscapeSingleQuote(attributeDescription) + "', null, " + true + ", '" + attributeParentCategory + "', '" + attributeParentCode + "', '" + grpCategory + "', '" + grpCode + "');";
+                                var insertAttributesQuery =
+                                    "INSERT INTO classification.classification (category, code, description, short_description, active, parent_category, parent_code, group_category, group_code) VALUES (" +
+                                    "'" + attributeCategory + "', '" + attributeCode + "', '" +
+                                    EscapeSingleQuote(attributeDescription) + "', null, " + true + ", '" +
+                                    attributeParentCategory + "', '" + attributeParentCode + "', '" + grpCategory +
+                                    "', '" + grpCode + "');";
                                 log.Info("		" + insertAttributesQuery);
 
                             }
 
                             if (includeLogs)
                             {
-                                log.Info("                                                                              ");
-                                log.Info("                                                                              ");
+                                log.Info(
+                                    "                                                                              ");
+                                log.Info(
+                                    "                                                                              ");
 
                             }
 
@@ -638,7 +667,7 @@ namespace XML2Table
                 zoneCategoryRegistry = null;
                 taAttributeRegistry = null;
                 zoneAttributeRegistry = null;
-                
+
                 taSequence = 10001;
                 zoneSequence = 20001;
                 taAttributeSequence = 30001;
@@ -703,7 +732,36 @@ namespace XML2Table
             }
 
         }
+        private void getPostgressCon()
+        {
+            try
+            {
+                string dbHost = ConfigurationManager.AppSettings["dbHost"];
+                string dbPort = ConfigurationManager.AppSettings["dbPort"];
+                string dbName = ConfigurationManager.AppSettings["dbName"];
+                string dbUserName = ConfigurationManager.AppSettings["dbUserName"];
+                string dbPassword = ConfigurationManager.AppSettings["dbPassword"];
 
+
+                var connString = "Host=" + dbHost + ";Port=" + dbPort + ";Username=" + dbUserName + ";Password=" +
+                                 dbPassword + ";Database=" + dbName;
+                Console.WriteLine("connString: ", connString);
+
+                using (var conn = new NpgsqlConnection(connString))
+                {
+                    conn.Open();
+
+                  
+
+                }
+            }
+            catch (Exception ex)
+            {
+
+                log.Debug(MethodBase.GetCurrentMethod().Name + " Exception : " + ex.Message);
+            }
+
+        }
         private void button1_Click_1(object sender, EventArgs e)
         {
             //Console.WriteLine(CreateCategory("Minimum Site 280m² with a %building() commitment and 500m² without."));
@@ -711,6 +769,7 @@ namespace XML2Table
             //Addmedia();
 
         }
+
         public static int GenerateRandomNo()
         {
             int _min = 1000;
@@ -724,9 +783,10 @@ namespace XML2Table
                 Console.WriteLine(num);
             }
 
-            
+
             return 0;
         }
+
         public static async void Addmedia()
         {
             try
@@ -803,6 +863,7 @@ namespace XML2Table
                 log.Debug(MethodBase.GetCurrentMethod().Name + " Exception : " + ex.Message);
             }
         }
+
         public class MediaEntry
         {
             public string id { get; set; }
@@ -812,6 +873,7 @@ namespace XML2Table
             public MediaItem mediaItem { get; set; }
 
         }
+
         public class MediaItem
         {
             public string id { get; set; }
@@ -822,6 +884,43 @@ namespace XML2Table
             public string uploadedDate { get; set; }
             public bool isIncludedInInsurance { get; set; }
             public bool isIncludedInInsuranceReports { get; set; }
+        }
+
+        private void btn_processMediaMigration_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (radio_btn_full_run.Checked)
+                {
+                    if (MessageBox.Show("Are You Sure?", "Are You Sure", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.OK)
+                    {
+                        Debug.WriteLine("Running");
+                    }
+                }
+                else if (radio_btn_test_run.Checked)
+                {
+                    processMedia();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(MethodBase.GetCurrentMethod().Name + " Exception : " + ex.Message);
+                log.Debug(MethodBase.GetCurrentMethod().Name + " Exception : " + ex.Message);
+            }
+        }
+
+        private void processMedia()
+        {
+            try
+            {
+
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(MethodBase.GetCurrentMethod().Name + " Exception : " + ex.Message);
+                log.Debug(MethodBase.GetCurrentMethod().Name + " Exception : " + ex.Message);
+            }
+
         }
     }
 }
