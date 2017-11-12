@@ -32,6 +32,7 @@
             this.txtBox = new System.Windows.Forms.TextBox();
             this.btnBrowse = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.chk_box_clean = new System.Windows.Forms.CheckBox();
             this.button1 = new System.Windows.Forms.Button();
             this.checkBx = new System.Windows.Forms.CheckBox();
             this.label2 = new System.Windows.Forms.Label();
@@ -41,9 +42,9 @@
             this.lblNewStatus = new System.Windows.Forms.Label();
             this.openXmlFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.btn_processMediaMigration = new System.Windows.Forms.Button();
-            this.radio_btn_test_run = new System.Windows.Forms.RadioButton();
             this.radio_btn_full_run = new System.Windows.Forms.RadioButton();
+            this.radio_btn_test_run = new System.Windows.Forms.RadioButton();
+            this.btn_processMediaMigration = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -68,6 +69,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.chk_box_clean);
             this.groupBox1.Controls.Add(this.button1);
             this.groupBox1.Controls.Add(this.checkBx);
             this.groupBox1.Controls.Add(this.label2);
@@ -80,6 +82,19 @@
             this.groupBox1.TabIndex = 2;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "FW XML to Classification Table Export";
+            // 
+            // chk_box_clean
+            // 
+            this.chk_box_clean.AutoSize = true;
+            this.chk_box_clean.Checked = true;
+            this.chk_box_clean.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chk_box_clean.Location = new System.Drawing.Point(58, 271);
+            this.chk_box_clean.Name = "chk_box_clean";
+            this.chk_box_clean.Size = new System.Drawing.Size(278, 36);
+            this.chk_box_clean.TabIndex = 6;
+            this.chk_box_clean.Text = "Clean Sequences";
+            this.chk_box_clean.UseVisualStyleBackColor = true;
+            this.chk_box_clean.CheckedChanged += new System.EventHandler(this.chk_box_clean_CheckedChanged);
             // 
             // button1
             // 
@@ -165,15 +180,15 @@
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Media Migration";
             // 
-            // btn_processMediaMigration
+            // radio_btn_full_run
             // 
-            this.btn_processMediaMigration.Location = new System.Drawing.Point(760, 43);
-            this.btn_processMediaMigration.Name = "btn_processMediaMigration";
-            this.btn_processMediaMigration.Size = new System.Drawing.Size(272, 96);
-            this.btn_processMediaMigration.TabIndex = 0;
-            this.btn_processMediaMigration.Text = "Process";
-            this.btn_processMediaMigration.UseVisualStyleBackColor = true;
-            this.btn_processMediaMigration.Click += new System.EventHandler(this.btn_processMediaMigration_Click);
+            this.radio_btn_full_run.AutoSize = true;
+            this.radio_btn_full_run.Location = new System.Drawing.Point(530, 73);
+            this.radio_btn_full_run.Name = "radio_btn_full_run";
+            this.radio_btn_full_run.Size = new System.Drawing.Size(158, 36);
+            this.radio_btn_full_run.TabIndex = 2;
+            this.radio_btn_full_run.Text = "Full Run";
+            this.radio_btn_full_run.UseVisualStyleBackColor = true;
             // 
             // radio_btn_test_run
             // 
@@ -187,15 +202,15 @@
             this.radio_btn_test_run.Text = "Test Run (Process 100 Records)";
             this.radio_btn_test_run.UseVisualStyleBackColor = true;
             // 
-            // radio_btn_full_run
+            // btn_processMediaMigration
             // 
-            this.radio_btn_full_run.AutoSize = true;
-            this.radio_btn_full_run.Location = new System.Drawing.Point(530, 73);
-            this.radio_btn_full_run.Name = "radio_btn_full_run";
-            this.radio_btn_full_run.Size = new System.Drawing.Size(158, 36);
-            this.radio_btn_full_run.TabIndex = 2;
-            this.radio_btn_full_run.Text = "Full Run";
-            this.radio_btn_full_run.UseVisualStyleBackColor = true;
+            this.btn_processMediaMigration.Location = new System.Drawing.Point(760, 43);
+            this.btn_processMediaMigration.Name = "btn_processMediaMigration";
+            this.btn_processMediaMigration.Size = new System.Drawing.Size(272, 96);
+            this.btn_processMediaMigration.TabIndex = 0;
+            this.btn_processMediaMigration.Text = "Process";
+            this.btn_processMediaMigration.UseVisualStyleBackColor = true;
+            this.btn_processMediaMigration.Click += new System.EventHandler(this.btn_processMediaMigration_Click);
             // 
             // Xml2Db
             // 
@@ -212,6 +227,8 @@
             this.Name = "Xml2Db";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Xml2Db";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Xml2Db_FormClosing);
+            this.Load += new System.EventHandler(this.Xml2Db_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
@@ -241,6 +258,7 @@
         private System.Windows.Forms.RadioButton radio_btn_full_run;
         private System.Windows.Forms.RadioButton radio_btn_test_run;
         private System.Windows.Forms.Button btn_processMediaMigration;
+        private System.Windows.Forms.CheckBox chk_box_clean;
     }
 }
 

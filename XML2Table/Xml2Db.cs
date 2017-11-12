@@ -74,11 +74,20 @@ namespace XML2Table
                         includeLogs = true;
                     }
 
+                    if (chk_box_clean.Checked)
+                    {
+                        taCategoryRegistry = new List<string>();
+                        zoneCategoryRegistry = new List<string>();
+
+                        taAttributeRegistry = new List<string>();
+                        zoneAttributeRegistry = new List<string>();
+                    }
+
                     //Read and Store CSV Data
                     ReadCsvFile();
 
                     //Process XML
-                    processXml(xmlFilePath, lblNewStatus);
+                    processXml(xmlFilePath, lblNewStatus, chk_box_clean);
 
                     //ReadXmlAndInsert2Db(xmlFilePath);
                 }
@@ -282,16 +291,10 @@ namespace XML2Table
             }
         }
 
-        private static void processXml(string xmlFilePath, Label lblStatus)
+        private static void processXml(string xmlFilePath, Label lblStatus, CheckBox chk_box_clean)
         {
             try
             {
-                taCategoryRegistry = new List<string>();
-                zoneCategoryRegistry = new List<string>();
-
-                taAttributeRegistry = new List<string>();
-                zoneAttributeRegistry = new List<string>();
-
                 XElement xelement = XElement.Load(xmlFilePath);
                 IEnumerable<XElement> classfications = xelement.Descendants("List_Item");
 
@@ -663,15 +666,19 @@ namespace XML2Table
                 queryCsv = null;
                 includeLogs = false;
 
-                taCategoryRegistry = null;
-                zoneCategoryRegistry = null;
-                taAttributeRegistry = null;
-                zoneAttributeRegistry = null;
+                if (chk_box_clean.Checked)
+                {
+                    taCategoryRegistry = null;
+                    zoneCategoryRegistry = null;
+                    taAttributeRegistry = null;
+                    zoneAttributeRegistry = null;
 
-                taSequence = 10001;
-                zoneSequence = 20001;
-                taAttributeSequence = 30001;
-                zoneAttributeSequence = 40001;
+                    taSequence = 10001;
+                    zoneSequence = 20001;
+                    taAttributeSequence = 30001;
+                    zoneAttributeSequence = 40001;
+                }
+                
             }
         }
 
@@ -921,6 +928,34 @@ namespace XML2Table
                 log.Debug(MethodBase.GetCurrentMethod().Name + " Exception : " + ex.Message);
             }
 
+        }
+
+        private void Xml2Db_Load(object sender, EventArgs e)
+        {
+            //taCategoryRegistry = new List<string>();
+            //zoneCategoryRegistry = new List<string>();
+
+            //taAttributeRegistry = new List<string>();
+            //zoneAttributeRegistry = new List<string>();
+        }
+
+        private void Xml2Db_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            taCategoryRegistry = null;
+            zoneCategoryRegistry = null;
+            taAttributeRegistry = null;
+            zoneAttributeRegistry = null;
+        }
+
+        private void chk_box_clean_CheckedChanged(object sender, EventArgs e)
+        {
+            //The moment it is unchecked, means save all the sequence
+            if (chk_box_clean.Checked) return;
+            taCategoryRegistry = new List<string>();
+            zoneCategoryRegistry = new List<string>();
+
+            taAttributeRegistry = new List<string>();
+            zoneAttributeRegistry = new List<string>();
         }
     }
 }
