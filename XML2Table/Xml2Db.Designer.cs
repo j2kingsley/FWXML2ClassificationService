@@ -45,6 +45,7 @@
             this.radio_btn_full_run = new System.Windows.Forms.RadioButton();
             this.radio_btn_test_run = new System.Windows.Forms.RadioButton();
             this.btn_processMediaMigration = new System.Windows.Forms.Button();
+            this.label3 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -69,6 +70,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.label3);
             this.groupBox1.Controls.Add(this.chk_box_clean);
             this.groupBox1.Controls.Add(this.button1);
             this.groupBox1.Controls.Add(this.checkBx);
@@ -78,7 +80,7 @@
             this.groupBox1.Controls.Add(this.btnBrowse);
             this.groupBox1.Location = new System.Drawing.Point(45, 59);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(1071, 343);
+            this.groupBox1.Size = new System.Drawing.Size(1071, 402);
             this.groupBox1.TabIndex = 2;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "FW XML to Classification Table Export";
@@ -147,7 +149,7 @@
             // groupBox2
             // 
             this.groupBox2.Controls.Add(this.lblNewStatus);
-            this.groupBox2.Location = new System.Drawing.Point(45, 633);
+            this.groupBox2.Location = new System.Drawing.Point(45, 725);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(1071, 130);
             this.groupBox2.TabIndex = 4;
@@ -173,7 +175,7 @@
             this.groupBox3.Controls.Add(this.radio_btn_full_run);
             this.groupBox3.Controls.Add(this.radio_btn_test_run);
             this.groupBox3.Controls.Add(this.btn_processMediaMigration);
-            this.groupBox3.Location = new System.Drawing.Point(45, 433);
+            this.groupBox3.Location = new System.Drawing.Point(45, 525);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(1071, 175);
             this.groupBox3.TabIndex = 5;
@@ -212,11 +214,20 @@
             this.btn_processMediaMigration.UseVisualStyleBackColor = true;
             this.btn_processMediaMigration.Click += new System.EventHandler(this.btn_processMediaMigration_Click);
             // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(582, 343);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(459, 32);
+            this.label3.TabIndex = 6;
+            this.label3.Text = "Note: Don\'t run this on non-TA XML";
+            // 
             // Xml2Db
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(16F, 31F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1165, 813);
+            this.ClientSize = new System.Drawing.Size(1173, 916);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.label1);
@@ -259,6 +270,7 @@
         private System.Windows.Forms.RadioButton radio_btn_test_run;
         private System.Windows.Forms.Button btn_processMediaMigration;
         private System.Windows.Forms.CheckBox chk_box_clean;
+        private System.Windows.Forms.Label label3;
     }
 }
 

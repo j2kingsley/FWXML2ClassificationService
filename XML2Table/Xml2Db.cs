@@ -39,12 +39,17 @@ namespace XML2Table
         private static List<string> taAttributeRegistry = null;
         private static List<string> zoneCategoryRegistry = null;
         private static List<string> zoneAttributeRegistry = null;
+        private static List<string> zoneDescriptionRegistry = null;
+
 
         private static long taSequence = 10001;
         private static long zoneSequence = 20001;
 
         private static long taAttributeSequence = 30001;
         private static long zoneAttributeSequence = 40001;
+
+        private static long zoneDescriptionSequence = 50001;
+
 
         public Xml2Db()
         {
@@ -81,13 +86,26 @@ namespace XML2Table
 
                         taAttributeRegistry = new List<string>();
                         zoneAttributeRegistry = new List<string>();
+
+                        zoneDescriptionRegistry = new List<string>();
+
                     }
 
                     //Read and Store CSV Data
                     ReadCsvFile();
 
-                    //Process XML
-                    processXml(xmlFilePath, lblNewStatus, chk_box_clean);
+                    //Process XML | Original generic logic
+                    //processXml(xmlFilePath, lblNewStatus, chk_box_clean);
+
+                    //Process XML | logic: 
+                    //- Move Zone description to Attribute level
+                    //-Name it zoneDescription+CategoryName
+                    //-Rename: Attributes as follows
+                    //   -Zone Desc
+                    //   -Zone Density
+                    //   -ZoneAttributes1
+                    //   -ZoneAttributes2
+                    ProcessXml1(xmlFilePath, lblNewStatus, chk_box_clean);
 
                     //ReadXmlAndInsert2Db(xmlFilePath);
                 }
@@ -672,13 +690,433 @@ namespace XML2Table
                     zoneCategoryRegistry = null;
                     taAttributeRegistry = null;
                     zoneAttributeRegistry = null;
+                    zoneDescriptionRegistry = null;
 
                     taSequence = 10001;
                     zoneSequence = 20001;
                     taAttributeSequence = 30001;
                     zoneAttributeSequence = 40001;
+                    zoneDescriptionSequence = 50001;
                 }
                 
+            }
+        }
+
+        private static void ProcessXml1(string xmlFilePath, Label lblStatus, CheckBox chk_box_clean)
+        {
+            try
+            {
+                XElement xelement = XElement.Load(xmlFilePath);
+                IEnumerable<XElement> classfications = xelement.Descendants("List_Item");
+
+                int listCounter = 0;
+                int totalRowCounter = 0;
+
+                string grpCategory = null;
+                string grpCode = null;
+                string grpDescription = null;
+
+                foreach (var eachClassification in classfications)
+                {
+                    //1. Get Category Name [Getting Group name and details]
+                    if (listCounter == 0)
+                    {
+                        if (eachClassification.Parent.HasAttributes)
+                        {
+                            grpCategory = eachClassification.Parent.FirstAttribute.Value.Replace(" ", "");
+
+                            log.Info("-- Create " + eachClassification.Parent.FirstAttribute.Value + " classification");
+
+                            if (includeLogs)
+                            {
+                                Console.WriteLine("Group Name: " + eachClassification.Parent.FirstAttribute.Value);
+                                log.Info("Group Name: " + eachClassification.Parent.FirstAttribute.Value);
+
+                                Console.WriteLine("Group Name: " + eachClassification.Parent.LastAttribute.Value);
+                            }
+
+                            foreach (var eachGroupAttrbs in eachClassification.Parent.Attributes())
+                            {
+                                if (eachGroupAttrbs.Name.LocalName == "name")
+                                {
+                                    grpCategory = CreateCategory(eachGroupAttrbs.Value);
+
+                                    foreach (var eachWord in eachGroupAttrbs.Value.Split(' '))
+                                    {
+                                        string lclCode = eachWord.FirstOrDefault().ToString().ToUpper();
+                                        grpCode = grpCode + lclCode;
+                                    }
+
+                                }
+                                else if (eachGroupAttrbs.Name.LocalName == "description")
+                                {
+                                    grpDescription = eachGroupAttrbs.Value;
+                                }
+
+
+                            }
+
+                            totalRowCounter = totalRowCounter + 1;
+                            string insertGrpQuery =
+                                "INSERT INTO classification.classification (category, code, description, short_description, active, parent_category, parent_code, group_category, group_code) VALUES (" +
+                                "'" + grpCategory + "', '" + grpCode + "', '" + EscapeSingleQuote(grpDescription) +
+                                "', null, " + true + ", null, null, '" + grpCategory + "', '" + grpCode + "');";
+                            log.Info("		" + insertGrpQuery);
+                        }
+                    }
+
+                    //2. Get Parent List name [Getting TA Lists]
+                    if (eachClassification.Parent.Name.LocalName == "List")
+                    {
+                        string prtCategory = null;
+                        string prtCode = null;
+                        string prtDescription = null;
+                        string prtParentCategory = null;
+                        string prtParentCode = null;
+                        string prtShortDescription = null;
+
+                        listCounter = listCounter + 1;
+
+                        if (includeLogs)
+                        {
+                            log.Info("                                                                              ");
+                            log.Info("------------------------------------------------------------------------------");
+                            log.Info("                                                                              ");
+
+                            log.Info("List Counter: " + listCounter.ToString());
+                        }
+
+                        if (GetXElement(eachClassification.Element("Backend_ID")) != null)
+                        {
+                            //Get TA Code
+                            int taCode = TaCodeValue(Utils.SafeInt(eachClassification.Element("Backend_ID").Value));
+
+                            if (includeLogs)
+                            {
+                                Console.WriteLine(eachClassification.Element("Backend_ID").Value);
+                                log.Info("		Parent Backend_ID: " + eachClassification.Element("Backend_ID").Value +
+                                         "		TA Code: " + taCode.ToString());
+                            }
+
+                            prtCode = taCode == 0 ? eachClassification.Element("Backend_ID").Value : taCode.ToString();
+                            prtCode = Regex.Replace(prtCode, @"[^0-9a-zA-Z]+", "");
+
+                        }
+
+                        if (GetXElement(eachClassification.Element("Value")) != null)
+                        {
+                            if (includeLogs)
+                            {
+                                Console.WriteLine(eachClassification.Element("Value").Value);
+                                log.Info("		Parent Value: " + eachClassification.Element("Value").Value);
+                            }
+                            prtShortDescription = eachClassification.Element("Value").Value;
+                            prtCategory = CreateCategory(eachClassification.Element("Value").Value);
+
+                            if (taCategoryRegistry.Contains(prtCategory))
+                            {
+                                //Then it is dupicate
+                                taSequence = taSequence + 1;
+                                prtCategory = prtCategory +'_'+ taSequence;
+                            }
+                            else
+                            {
+                                taCategoryRegistry.Add(prtCategory);
+                            }
+
+
+                        }
+
+                        //Status:
+                        lblStatus.Text = "Processing: " + listCounter.ToString() + " - " + prtCategory;
+
+                        if (GetXElement(eachClassification.Element("Description")) != null)
+                        {
+                            if (includeLogs)
+                            {
+                                Console.WriteLine(eachClassification.Element("Description").Value);
+                                log.Info("		Parent Description: " + eachClassification.Element("Description").Value);
+                            }
+
+                            prtDescription = eachClassification.Element("Description").Value;
+                        }
+
+                        prtParentCategory = grpCategory;
+                        prtParentCode = grpCode;
+
+                        totalRowCounter = totalRowCounter + 1;
+                        var insertParentQuery =
+                            "INSERT INTO classification.classification (category, code, description, short_description, active, parent_category, parent_code, group_category, group_code) VALUES (" +
+                            "'" + prtCategory + "', '" + prtCode + "', '" + EscapeSingleQuote(prtDescription) + "', '" +
+                            EscapeSingleQuote(prtShortDescription) + "', " + true + ", '" + prtParentCategory + "', '" +
+                            prtParentCode + "', '" + grpCategory + "', '" + grpCode + "');";
+                        log.Info("		" + insertParentQuery);
+
+
+                        //Parents(TA) Attributes
+                        IEnumerable<XElement> attributesChildList = from eA in eachClassification.Elements("Attribute")
+                                                                    select eA;
+
+
+                        foreach (XElement parentAttrValue in attributesChildList)
+                        {
+                            if (includeLogs)
+                            {
+                                Console.WriteLine(parentAttrValue.Value);
+                                log.Info("		Parent(TA) Attribute: " + parentAttrValue.Value);
+                            }
+                            string ptrAttributeCategory = null;
+                            string ptrAttributeCode = null;
+                            string ptrAttributeDescription = null;
+                            string ptrAttributeParentCategory = null;
+                            string ptrAttributeParentCode = null;
+
+
+
+                            ptrAttributeCategory = "TA_Attributes_" + prtCategory;
+                            //ptrAttributeCategory = "Attributes";
+                            if (taAttributeRegistry.Contains(ptrAttributeCategory))
+                            {
+                                //Then it is dupicate
+                                taAttributeSequence = taAttributeSequence + 1;
+                                ptrAttributeCategory = ptrAttributeCategory + '_' + taAttributeSequence;
+                            }
+                            else
+                            {
+                                taAttributeRegistry.Add(ptrAttributeCategory);
+                            }
+
+                            zoneDescriptionSequence = zoneDescriptionSequence + 1;
+                            ptrAttributeCode = zoneDescriptionSequence.ToString();
+                            ptrAttributeDescription = parentAttrValue.Value;
+                            ptrAttributeParentCategory = prtCategory;
+                            ptrAttributeParentCode = prtCode;
+
+                            totalRowCounter = totalRowCounter + 1;
+                            var insertptrAttributesQuery =
+                                "INSERT INTO classification.classification (category, code, description, short_description, active, parent_category, parent_code, group_category, group_code) VALUES (" +
+                                "'" + ptrAttributeCategory + "', '" + ptrAttributeCode + "', '" +
+                                EscapeSingleQuote(ptrAttributeDescription) + "', null, " + true + ", '" +
+                                ptrAttributeParentCategory + "', '" + ptrAttributeParentCode + "', '" + grpCategory +
+                                "', '" + grpCode + "');";
+                            log.Info("		" + insertptrAttributesQuery);
+
+                        }
+
+
+                        //3. Get Children List [Gettting ZONE Lists]
+                        IEnumerable<XElement> elementsChildList = from eA in eachClassification.Elements("List_Item")
+                                                                  select eA;
+                        int zoneBackendIdcounter = 0;
+                        foreach (XElement eleValue in elementsChildList)
+                        {
+                            zoneBackendIdcounter = zoneBackendIdcounter + 1;
+
+                            string childCategory = null;
+                            string childCode = null;
+                            string childDescription = null;
+                            string childParentCategory = null;
+                            string childParentCode = null;
+                            string childShortDescription = null;
+
+                            if (GetXElement(eleValue.Element("Backend_ID")) != null)
+                            {
+                                //Get TA Code
+                                int taCode = TaCodeValue(Utils.SafeInt(eleValue.Element("Backend_ID").Value));
+                                if (includeLogs)
+                                {
+                                    Console.WriteLine(eleValue.Element("Backend_ID").Value);
+                                    log.Info("		Backend_ID: " + eleValue.Element("Backend_ID").Value + "		TA Code: " +
+                                             taCode.ToString());
+
+                                }
+                                childCode = taCode == 0 ? eleValue.Element("Backend_ID").Value : taCode.ToString();
+
+                                //Someback end ID has long string values :(
+                                childCode = CreateCode(childCode);
+
+                                //Found out that for some zones Backend_ID is null. So concatenating parent code and randomly generated number for code
+                                if (childCode == "" || childCode == string.Empty || childCode == null)
+                                {
+                                    childCode = prtCode + zoneBackendIdcounter.ToString();
+                                }
+                                childCode = childCode + zoneBackendIdcounter.ToString();
+
+                            }
+                            if (GetXElement(eleValue.Element("Value")) != null)
+                            {
+                                if (includeLogs)
+                                {
+                                    Console.WriteLine(eleValue.Element("Value").Value);
+                                    log.Info("		Value: " + eleValue.Element("Value").Value);
+                                }
+
+                                childShortDescription = eleValue.Element("Value").Value;
+
+                                childCategory = CreateCategory(eleValue.Element("Value").Value);
+                                //Found some duplicate values in Child Category list
+                                //childCategory = childCategory + prtCode;
+
+                                if (zoneCategoryRegistry.Contains(childCategory))
+                                {
+                                    //Then it is duplicate zone
+                                    zoneSequence = zoneSequence + 1;
+                                    childCategory = childCategory + '_' + zoneSequence;
+                                }
+                                else
+                                {
+                                    zoneCategoryRegistry.Add(childCategory);
+                                }
+
+
+                            }
+
+
+                            if (GetXElement(eleValue.Element("Description")) != null)
+                            {
+                                if (includeLogs)
+                                {
+                                    Console.WriteLine(eleValue.Element("Description").Value);
+                                    log.Info("		Description: " + eleValue.Element("Description").Value);
+                                }
+
+                                // Zone Description
+                                childDescription = eleValue.Element("Description").Value;
+                            }
+
+
+                            childParentCategory = prtCategory;
+                            childParentCode = prtCode;
+
+                            totalRowCounter = totalRowCounter + 1;
+                            var insertChildQuery =
+                                "INSERT INTO classification.classification (category, code, description, short_description, active, parent_category, parent_code, group_category, group_code) VALUES (" +
+                                "'" + childCategory + "', '" + childCode + "', '" + null +
+                                "', '" + EscapeSingleQuote(childShortDescription) + "', " + true + ", '" +
+                                childParentCategory + "', '" + childParentCode + "', '" + grpCategory + "', '" + grpCode +
+                                "');";
+                            log.Info("		" + insertChildQuery);
+
+                            //Children(ZONES) Attributes
+                            IEnumerable<XElement> attributeChildList = from eA in eleValue.Elements("Attribute")
+                                                                       select eA;;
+
+                            //New Changes to moving zone desc to attribute level -- Start--
+                      
+                            string zoneCategory = null;
+                            string zoneCode = null ;
+                            string zoneDescription = childDescription;
+
+                            zoneCategory = "ZoneDescription_" + childCategory;
+                          
+                              //Then it is dupicate
+                                zoneDescriptionSequence = zoneDescriptionSequence + 1;
+                                zoneCategory = zoneCategory + '_' + zoneDescriptionSequence;
+                            
+                                zoneDescriptionRegistry.Add(zoneCategory);
+                           
+                            zoneCode = zoneDescriptionSequence.ToString(); ;
+
+                            totalRowCounter = totalRowCounter + 1;
+                            var insertZoneDescAsAttributesQuery =
+                                "INSERT INTO classification.classification (category, code, description, short_description, active, parent_category, parent_code, group_category, group_code) VALUES (" +
+                                "'" + zoneCategory + "', '" + zoneCode + "', '" +
+                                EscapeSingleQuote(zoneDescription) + "', null, " + true + ", '" +
+                                childCategory + "', '" + childCode + "', '" + grpCategory +
+                                "', '" + grpCode + "');";
+                            log.Info("		" + insertZoneDescAsAttributesQuery);
+                            //New Changes to moving zone desc to attribute level -- End--
+                           
+                            foreach (XElement attrValue in attributeChildList)
+                            {
+                                string attributeCategory = null;
+                                string attributeCode = null;
+                                string attributeDescription = null;
+                                string attributeParentCategory = null;
+                                string attributeParentCode = null;
+
+                       
+                                if (includeLogs)
+                                {
+                                    Console.WriteLine(attrValue.Value);
+                                    log.Info("		ZoneAttribute: " + attrValue.Value);
+                                }
+                                attributeCategory = "ZoneAttributes_" + childCategory;
+                                //attributeCategory = "Attributes";
+                                if (zoneAttributeRegistry.Contains(attributeCategory))
+                                {
+                                    //Then it is dupicate
+                                    zoneAttributeSequence = zoneAttributeSequence + 1;
+                                    attributeCategory = attributeCategory + '_' + zoneAttributeSequence;
+                                }
+                                else
+                                {
+                                    zoneAttributeRegistry.Add(attributeCategory);
+                                }
+
+                                zoneDescriptionSequence = zoneDescriptionSequence + 1;
+                                attributeCode = zoneDescriptionSequence.ToString();
+                                attributeDescription = attrValue.Value;
+                                attributeParentCategory = childCategory;
+                                attributeParentCode = childCode;
+
+                                totalRowCounter = totalRowCounter + 1;
+                                var insertAttributesQuery =
+                                    "INSERT INTO classification.classification (category, code, description, short_description, active, parent_category, parent_code, group_category, group_code) VALUES (" +
+                                    "'" + attributeCategory + "', '" + attributeCode + "', '" +
+                                    EscapeSingleQuote(attributeDescription) + "', null, " + true + ", '" +
+                                    attributeParentCategory + "', '" + attributeParentCode + "', '" + grpCategory +
+                                    "', '" + grpCode + "');";
+                                log.Info("		" + insertAttributesQuery);
+
+                            }
+
+                            if (includeLogs)
+                            {
+                                log.Info(
+                                    "                                                                              ");
+                                log.Info(
+                                    "                                                                              ");
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+                MessageBox.Show("Processing XML is Completed!");
+                lblStatus.Text = "Processing XML is Completed!";
+                log.Info("--Total Inserted Rows: " + totalRowCounter.ToString());
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(" Exception : " + ex.Message);
+                log.Error(MethodBase.GetCurrentMethod().Name + " | " + "Exception: " + ex.Message);
+            }
+            finally
+            {
+                queryCsv = null;
+                includeLogs = false;
+
+                if (chk_box_clean.Checked)
+                {
+                    taCategoryRegistry = null;
+                    zoneCategoryRegistry = null;
+                    taAttributeRegistry = null;
+                    zoneAttributeRegistry = null;
+                    zoneDescriptionRegistry = null;
+
+                    taSequence = 10001;
+                    zoneSequence = 20001;
+                    taAttributeSequence = 30001;
+                    zoneAttributeSequence = 40001;
+                    zoneDescriptionSequence = 50001;
+
+                }
+
             }
         }
 
@@ -945,6 +1383,7 @@ namespace XML2Table
             zoneCategoryRegistry = null;
             taAttributeRegistry = null;
             zoneAttributeRegistry = null;
+            zoneDescriptionRegistry = null;
         }
 
         private void chk_box_clean_CheckedChanged(object sender, EventArgs e)
@@ -956,6 +1395,8 @@ namespace XML2Table
 
             taAttributeRegistry = new List<string>();
             zoneAttributeRegistry = new List<string>();
+
+            zoneDescriptionRegistry = new List<string>();
         }
     }
 }
