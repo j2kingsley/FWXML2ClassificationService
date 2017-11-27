@@ -32,6 +32,7 @@
             this.txtBox = new System.Windows.Forms.TextBox();
             this.btnBrowse = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.label3 = new System.Windows.Forms.Label();
             this.chk_box_clean = new System.Windows.Forms.CheckBox();
             this.button1 = new System.Windows.Forms.Button();
             this.checkBx = new System.Windows.Forms.CheckBox();
@@ -45,7 +46,6 @@
             this.radio_btn_full_run = new System.Windows.Forms.RadioButton();
             this.radio_btn_test_run = new System.Windows.Forms.RadioButton();
             this.btn_processMediaMigration = new System.Windows.Forms.Button();
-            this.label3 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -84,6 +84,15 @@
             this.groupBox1.TabIndex = 2;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "FW XML to Classification Table Export";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(582, 343);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(459, 32);
+            this.label3.TabIndex = 6;
+            this.label3.Text = "Note: Don\'t run this on non-TA XML";
             // 
             // chk_box_clean
             // 
@@ -213,15 +222,6 @@
             this.btn_processMediaMigration.Text = "Process";
             this.btn_processMediaMigration.UseVisualStyleBackColor = true;
             this.btn_processMediaMigration.Click += new System.EventHandler(this.btn_processMediaMigration_Click);
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(582, 343);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(459, 32);
-            this.label3.TabIndex = 6;
-            this.label3.Text = "Note: Don\'t run this on non-TA XML";
             // 
             // Xml2Db
             // 

@@ -813,7 +813,7 @@ namespace XML2Table
                             prtShortDescription = eachClassification.Element("Value").Value;
                             prtCategory = CreateCategory(eachClassification.Element("Value").Value);
 
-                            
+                            prtCategory = prtCategory + '_' + grpCode;
                             if (taCategoryRegistry.Contains(prtCategory))
                             {
                                 //Then it is dupicate
@@ -957,6 +957,7 @@ namespace XML2Table
                                 childCategory = CreateCategory(eleValue.Element("Value").Value);
                                 //Found some duplicate values in Child Category list
                                 //childCategory = childCategory + prtCode;
+                                childCategory = childCategory + '_' + prtCode + '_' + grpCode;
 
                                 if (zoneCategoryRegistry.Contains(childCategory))
                                 {
@@ -968,8 +969,7 @@ namespace XML2Table
                                 {
                                     zoneCategoryRegistry.Add(childCategory);
                                 }
-
-
+                                
                             }
 
 
