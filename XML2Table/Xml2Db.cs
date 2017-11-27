@@ -813,6 +813,7 @@ namespace XML2Table
                             prtShortDescription = eachClassification.Element("Value").Value;
                             prtCategory = CreateCategory(eachClassification.Element("Value").Value);
 
+                            
                             if (taCategoryRegistry.Contains(prtCategory))
                             {
                                 //Then it is dupicate
@@ -1026,7 +1027,8 @@ namespace XML2Table
                                 "', '" + grpCode + "');";
                             log.Info("		" + insertZoneDescAsAttributesQuery);
                             //New Changes to moving zone desc to attribute level -- End--
-                           
+
+                            int zoneAttributesCounter = 0;
                             foreach (XElement attrValue in attributeChildList)
                             {
                                 string attributeCategory = null;
@@ -1035,13 +1037,24 @@ namespace XML2Table
                                 string attributeParentCategory = null;
                                 string attributeParentCode = null;
 
-                       
+                                zoneAttributesCounter = zoneAttributesCounter + 1;
+
+
                                 if (includeLogs)
                                 {
                                     Console.WriteLine(attrValue.Value);
                                     log.Info("		ZoneAttribute: " + attrValue.Value);
                                 }
-                                attributeCategory = "ZoneAttributes_" + childCategory;
+
+                                if (zoneAttributesCounter == 1)
+                                {
+                                    attributeCategory = "ZoneDensity_" + childCategory;
+                                }
+                                else
+                                {
+                                    attributeCategory = "ZoneAttributes_" + childCategory;
+                                }
+                                
                                 //attributeCategory = "Attributes";
                                 if (zoneAttributeRegistry.Contains(attributeCategory))
                                 {
