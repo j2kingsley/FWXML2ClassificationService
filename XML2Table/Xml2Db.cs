@@ -874,7 +874,7 @@ namespace XML2Table
 
 
 
-                            ptrAttributeCategory = "TA_Attributes_" + prtCategory;
+                            ptrAttributeCategory = "Attributes_" + prtCategory;
                             //ptrAttributeCategory = "Attributes";
                             if (taAttributeRegistry.Contains(ptrAttributeCategory))
                             {
@@ -1043,18 +1043,11 @@ namespace XML2Table
                                 if (includeLogs)
                                 {
                                     Console.WriteLine(attrValue.Value);
-                                    log.Info("		ZoneAttribute: " + attrValue.Value);
+                                    log.Info("		Attributes: " + attrValue.Value);
                                 }
 
-                                if (zoneAttributesCounter == 1)
-                                {
-                                    attributeCategory = "ZoneDensity_" + childCategory;
-                                }
-                                else
-                                {
-                                    attributeCategory = "ZoneAttributes_" + childCategory;
-                                }
-                                
+                                attributeCategory = "Attributes_" + childCategory;
+
                                 //attributeCategory = "Attributes";
                                 if (zoneAttributeRegistry.Contains(attributeCategory))
                                 {
